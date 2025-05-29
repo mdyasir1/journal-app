@@ -90,7 +90,7 @@ function Task() {
           interimTranscript += transcript;
         }
       }
-      setText((prev) => prev + (finalTranscript || interimTranscript));
+      setText( finalTranscript || interimTranscript);
     };
 
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
