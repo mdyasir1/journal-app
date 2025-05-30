@@ -176,12 +176,12 @@ function AudioToText() {
           {error && <p className="error">{error}</p>}
 
           <div className="btn-group">
-            <button id="reset-btn" onClick={resetHandler}>
+            <button className="reset-btn" onClick={resetHandler}>
               Reset
             </button>
             {/* Optional: Uncomment to enable these */}
-            {/* <button onClick={copyToClipboard}>Copy</button>
-            <button onClick={downloadText}>Download</button> */}
+            <button className="reset-btn" onClick={copyToClipboard}>Copy</button>
+            <button className="reset-btn" onClick={downloadText}>Download</button>
           </div>
         </>
       )}
