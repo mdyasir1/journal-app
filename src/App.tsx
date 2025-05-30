@@ -1,10 +1,10 @@
 import "./App.css";
-import AudioToText from "./Project";
+import AnotherOne from "./anotherOne";
 
 function App() {
   return (
     <>
-      <AudioToText />
+      <AnotherOne />
     </>
   );
 }
