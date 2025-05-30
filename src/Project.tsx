@@ -65,7 +65,7 @@ function AudioToText() {
     if (!SpeechRecognition) {
       setSupported(false);
       setError(
-        "Speech Recognition is not supported in this browser. Try using Chrome on a desktop or Android."
+        "Speech Recognition is not supported in this browser. Try using Chrome on desktop or Android."
       );
       return;
     }
@@ -95,8 +95,10 @@ function AudioToText() {
         const transcript = result[0].transcript.trim();
 
         if (result.isFinal) {
-          finalTranscript += transcript + " ";
-          lastProcessedIndexRef.current = i;
+          if (!lastFinalTranscriptRef.current.endsWith(transcript + " ")) {
+            finalTranscript += transcript + " ";
+            lastProcessedIndexRef.current = i;
+          }
         } else {
           interimTranscript += transcript + " ";
         }
@@ -126,17 +128,15 @@ function AudioToText() {
     const recognition = recognitionRef.current;
 
     if (!recognition) {
-      setError("Speech recognition is not supported in this browser");
+      setError("Speech recognition is not supported in this browser.");
       return;
     }
 
     if (!listening) {
       setError(null);
       recognition.start();
-      setListening(true);
     } else {
       recognition.stop();
-      setListening(false);
     }
   };
 
@@ -146,23 +146,43 @@ function AudioToText() {
     lastProcessedIndexRef.current = -1;
   };
 
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(text);
+    alert("Copied to clipboard!");
+  };
+
+  const downloadText = () => {
+    const blob = new Blob([text], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "transcript.txt";
+    link.click();
+  };
+
   return (
-    <div>
+    <div className="container">
       <h1>Audio To Text</h1>
 
       {!supported ? (
-        <p style={{ color: "red" }}>{error}</p>
+        <p className="error">{error}</p>
       ) : (
         <>
           <button id="buttonImg" onClick={handler}>
             <img src="mic.svg" alt="Mic" id="micImg" />
           </button>
-          <button id="reset-btn" onClick={resetHandler}>
-            Reset
-          </button>
-          <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
-          <p id="p-text">{text}</p>
-          {error && <p style={{ color: "red" }}>{error}</p>}
+          <p>{listening ? "Listening..." : "Tap on Mic to Speak.."}</p>
+          <textarea id="p-text" value={text} readOnly rows={8} />
+
+          {error && <p className="error">{error}</p>}
+
+          <div className="btn-group">
+            <button id="reset-btn" onClick={resetHandler}>
+              Reset
+            </button>
+            {/* Optional: Uncomment to enable these */}
+            {/* <button onClick={copyToClipboard}>Copy</button>
+            <button onClick={downloadText}>Download</button> */}
+          </div>
         </>
       )}
     </div>
