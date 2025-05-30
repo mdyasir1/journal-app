@@ -1,13 +1,12 @@
-import './App.css'
-import SpeechToText from './SpeechToText'
+import "./App.css";
+import AudioToText from "./Project";
 
 function App() {
-
   return (
     <>
-      <SpeechToText />
+      <AudioToText />
     </>
-  )
+  );
 }
 
-export default App
+export default App;
