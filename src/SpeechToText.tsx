@@ -3,7 +3,16 @@ import SpeechRecognition, {
 } from "react-speech-recognition";
 
 function SpeechToText() {
-  const { transcript, listening, resetTranscript } = useSpeechRecognition();
+  const {
+    transcript,
+    listening,
+    resetTranscript,
+    browserSupportsSpeechRecognition,
+  } = useSpeechRecognition();
+
+  if (!browserSupportsSpeechRecognition) {
+    return <span>Browser doesn’t support speech recognition.</span>;
+  }
   const handler = () => {
     if (!listening) {
       continuouslyListen();
