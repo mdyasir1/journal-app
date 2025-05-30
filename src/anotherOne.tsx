@@ -2,20 +2,31 @@ import "./App.css";
 import SpeechRecognition, {
   useSpeechRecognition,
 } from "react-speech-recognition";
-// import useClipboard from "react-use-clipboard";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const AnotherOne: React.FC = () => {
   const [textToCopy, setTextToCopy] = useState<string>("");
-  // const [isCopied, setCopied] = useClipboard(textToCopy, {
-  //   successDuration: 1000,
-  // });
+  const [isListening, setIsListening] = useState(false);
 
-  const startListening = () =>
+  const startListening = () => {
+    setIsListening(true);
     SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+  };
 
-  const { transcript, browserSupportsSpeechRecognition } =
+  const stopListening = () => {
+    setIsListening(false);
+    SpeechRecognition.stopListening();
+  };
+
+  const { transcript, browserSupportsSpeechRecognition, listening } =
     useSpeechRecognition();
+
+  useEffect(() => {
+    if (isListening && !listening) {
+      // Restart listening if it stopped unexpectedly (e.g., on mobile)
+      SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+    }
+  }, [listening, isListening]);
 
   if (!browserSupportsSpeechRecognition) {
     return <p>Browser does not support speech recognition.</p>;
@@ -35,14 +46,9 @@ const AnotherOne: React.FC = () => {
       </div>
 
       <div className="btn-style">
-        {/* <button onClick={setCopied}>
-          {isCopied ? "Copied!" : "Copy to clipboard"}
-        </button> */}
         <button onClick={startListening}>Start Listening</button>
-        <button onClick={SpeechRecognition.stopListening}>
-          Stop Listening
-        </button>
-        {textToCopy}
+        <button onClick={stopListening}>Stop Listening</button>
+        <p>{textToCopy}</p>
       </div>
     </div>
   );
