@@ -157,12 +157,12 @@ function AudioToText() {
           <button id="buttonImg" onClick={handler}>
             <img src="mic.svg" alt="Mic" id="micImg" />
           </button>
-          <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
-          <p id="p-text">{text}</p>
-          {error && <p style={{ color: "red" }}>{error}</p>}
           <button id="reset-btn" onClick={resetHandler}>
             Reset
           </button>
+          <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
+          <p id="p-text">{text}</p>
+          {error && <p style={{ color: "red" }}>{error}</p>}
         </>
       )}
     </div>
