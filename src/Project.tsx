@@ -53,7 +53,9 @@ function AudioToText() {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const lastFinalTranscriptRef = useRef(""); // Keeps only finalized transcript
+  const lastFinalTranscriptRef = useRef("");
+  const lastProcessedIndexRef = useRef(-1);
+  const [supported, setSupported] = useState(true);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -61,7 +63,10 @@ function AudioToText() {
       (window as Window).SpeechRecognition;
 
     if (!SpeechRecognition) {
-      setError("Speech Recognition not supported in this browser.");
+      setSupported(false);
+      setError(
+        "Speech Recognition is not supported in this browser. Try using Chrome on a desktop or Android."
+      );
       return;
     }
 
@@ -79,26 +84,29 @@ function AudioToText() {
       setListening(false);
     };
 
-    // ✅ FIXED: Cleaned logic to avoid duplicates
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscript = "";
       let finalTranscript = "";
 
       for (let i = event.resultIndex; i < event.results.length; i++) {
+        if (i <= lastProcessedIndexRef.current) continue;
+
         const result = event.results[i];
         const transcript = result[0].transcript.trim();
+
         if (result.isFinal) {
           finalTranscript += transcript + " ";
+          lastProcessedIndexRef.current = i;
         } else {
           interimTranscript += transcript + " ";
         }
       }
 
       if (finalTranscript) {
-        lastFinalTranscriptRef.current += finalTranscript; // ✅ Append once
-        setText(lastFinalTranscriptRef.current); // ✅ Update full text
+        lastFinalTranscriptRef.current += finalTranscript;
+        setText(lastFinalTranscriptRef.current);
       } else {
-        setText(lastFinalTranscriptRef.current + interimTranscript); // ✅ Show temporary
+        setText(lastFinalTranscriptRef.current + interimTranscript);
       }
     };
 
@@ -134,21 +142,29 @@ function AudioToText() {
 
   const resetHandler = () => {
     setText("");
-    lastFinalTranscriptRef.current = ""; // ✅ Also reset ref
+    lastFinalTranscriptRef.current = "";
+    lastProcessedIndexRef.current = -1;
   };
 
   return (
     <div>
       <h1>Audio To Text</h1>
-      <button id="buttonImg" onClick={handler}>
-        <img src="mic.svg" alt="Mic" id="micImg" />
-      </button>
-      <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
-      <p id="p-text">{text}</p>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <button id="reset-btn" onClick={resetHandler}>
-        Reset
-      </button>
+
+      {!supported ? (
+        <p style={{ color: "red" }}>{error}</p>
+      ) : (
+        <>
+          <button id="buttonImg" onClick={handler}>
+            <img src="mic.svg" alt="Mic" id="micImg" />
+          </button>
+          <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
+          <p id="p-text">{text}</p>
+          {error && <p style={{ color: "red" }}>{error}</p>}
+          <button id="reset-btn" onClick={resetHandler}>
+            Reset
+          </button>
+        </>
+      )}
     </div>
   );
 }
