@@ -1,11 +1,11 @@
 import './App.css'
-import Task from './Task'
+import SpeechToText from './SpeechToText'
 
 function App() {
 
   return (
     <>
-      <Task />
+      <SpeechToText />
     </>
   )
 }

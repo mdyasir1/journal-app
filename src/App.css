@@ -51,7 +51,7 @@
   height: 50px;
 }
 
-#p-text{
+#p-text {
   width: 800px;
   height: 200px;
   background-color: #d9dbf4aa;
@@ -60,8 +60,8 @@
   color: black;
   font-size: 15px;
   font-weight: 500;
-
+  padding: 10px 10px;
 }
-#reset-btn{
+#reset-btn {
   border-color: #d9dbf4aa;
 }
