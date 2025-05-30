@@ -6,27 +6,33 @@ import { useState, useEffect } from "react";
 
 const AnotherOne: React.FC = () => {
   const [textToCopy, setTextToCopy] = useState<string>("");
-  const [isListening, setIsListening] = useState(false);
+  const [shouldListen, setShouldListen] = useState<boolean>(false);
+
+  const { transcript, listening, browserSupportsSpeechRecognition } =
+    useSpeechRecognition();
 
   const startListening = () => {
-    setIsListening(true);
+    setShouldListen(true);
     SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
   };
 
   const stopListening = () => {
-    setIsListening(false);
+    setShouldListen(false);
     SpeechRecognition.stopListening();
   };
 
-  const { transcript, browserSupportsSpeechRecognition, listening } =
-    useSpeechRecognition();
-
+  // Auto-restart listening if it unexpectedly stops (on mobile)
   useEffect(() => {
-    if (isListening && !listening) {
-      // Restart listening if it stopped unexpectedly (e.g., on mobile)
-      SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+    if (shouldListen && !listening) {
+      const timeout = setTimeout(() => {
+        SpeechRecognition.startListening({
+          continuous: true,
+          language: "en-IN",
+        });
+      }, 500); // delay to prevent rapid restart loops
+      return () => clearTimeout(timeout);
     }
-  }, [listening, isListening]);
+  }, [listening, shouldListen]);
 
   if (!browserSupportsSpeechRecognition) {
     return <p>Browser does not support speech recognition.</p>;
