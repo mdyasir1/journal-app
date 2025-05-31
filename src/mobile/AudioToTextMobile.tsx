@@ -82,7 +82,7 @@ function AudioToTextMobile(){
 
   return (
     <div className="flex flex-col items-center gap-3 justify-center">
-      <h1 className="text-3xl font-bold">Audio To Text for Mobile</h1>
+      <h1 className="text-xl font-bold">Audio To Text for Mobile</h1>
       <button
         id="buttonImg"
         onClick={handler}
@@ -91,7 +91,7 @@ function AudioToTextMobile(){
         <img src="mic.svg" alt="Mic" id="micImg" className="" />
       </button>
       <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
-      <p className="w-[800px] h-[200px] bg-[#d9dbf4aa] rounded-3xl p-3 text-base font-bold text-black">
+      <p className="w-[300px] h-[400px] overflow-auto bg-[#d9dbf4aa] rounded-3xl p-3 text-base font-bold text-black">
         {text}
       </p>
       {error && <p style={{ color: "red" }}>{error}</p>}
