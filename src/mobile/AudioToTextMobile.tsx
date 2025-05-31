@@ -1,55 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import "./App.css";
+import { useEffect, useRef, useState } from "react";
+import { SpeechRecognitionErrorEvent, SpeechRecognitionEvent, SpeechRecognitionInstance, Window } from "../types";
 
-interface SpeechRecognitionAlternative {
-  transcript: string;
-  confidence: number;
-}
-
-interface SpeechRecognitionResult {
-  isFinal: boolean;
-  length: number;
-  [index: number]: SpeechRecognitionAlternative;
-}
-
-interface SpeechRecognitionResultList {
-  length: number;
-  [index: number]: SpeechRecognitionResult;
-}
-
-interface SpeechRecognitionEvent {
-  resultIndex: number;
-  results: SpeechRecognitionResultList;
-}
-
-interface SpeechRecognitionErrorEvent {
-  error: string;
-  message: string;
-}
-
-interface SpeechRecognitionInstance {
-  start: () => void;
-  stop: () => void;
-  onstart: (() => void) | null;
-  onend: (() => void) | null;
-  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
-  onresult: ((event: SpeechRecognitionEvent) => void) | null;
-  continuous: boolean;
-  interimResults: boolean;
-  lang: string;
-}
-
-interface SpeechRecognitionConstructor {
-  new (): SpeechRecognitionInstance;
-}
-
-interface Window {
-  webkitSpeechRecognition?: SpeechRecognitionConstructor;
-  SpeechRecognition?: SpeechRecognitionConstructor;
-}
-
-function Task() {
-  const [listening, setListening] = useState(false);
+function AudioToTextMobile(){
+    const [listening, setListening] = useState(false);
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
@@ -128,19 +81,24 @@ function Task() {
   };
 
   return (
-    <div>
-      <h1>Audio To Text</h1>
-      <button id="buttonImg" onClick={handler}>
-        <img src="mic.svg" alt="Mic" id="micImg" />
+    <div className="flex flex-col items-center gap-3 justify-center">
+      <h1 className="text-3xl font-bold">Audio To Text for Mobile</h1>
+      <button
+        id="buttonImg"
+        onClick={handler}
+        className="bg-[#d9dbf4aa] rounded-full w-16 h-16"
+      >
+        <img src="mic.svg" alt="Mic" id="micImg" className="" />
       </button>
       <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
-      <p id="p-text">{text}</p>
+      <p className="w-[800px] h-[200px] bg-[#d9dbf4aa] rounded-3xl p-3 text-base font-bold text-black">
+        {text}
+      </p>
       {error && <p style={{ color: "red" }}>{error}</p>}
-      <button id="reset-btn" onClick={resetHandler}>
+      <button className="border-[#d9dbf4aa]" onClick={resetHandler}>
         Reset
       </button>
     </div>
   );
 }
-
-export default Task;
+export default AudioToTextMobile;

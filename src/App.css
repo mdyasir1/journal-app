@@ -41,7 +41,7 @@
   color: #888;
 }
 
-#buttonImg {
+/* #buttonImg {
   background-color: #d9dbf4aa;
   border-radius: 100%;
 }
@@ -67,8 +67,8 @@
   border-color: #d9dbf4aa;
 }
 
-.btn-group{
+.btn-group {
   display: flex;
   gap: 10px;
   justify-content: center;
-}
+} */
