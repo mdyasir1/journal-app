@@ -97,7 +97,7 @@ function Task() {
           // Only add finalTranscript if it's different from last one
           if (finalTranscript !== lastFinalTranscriptRef.current) {
             lastFinalTranscriptRef.current = finalTranscript;
-            return prev + finalTranscript;
+            return finalTranscript;
           }
           return prev;
         }
