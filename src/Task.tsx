@@ -1,17 +1,64 @@
 import { useState, useEffect, useRef } from "react";
 import "./App.css";
 
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: SpeechRecognitionResultList;
+}
+
+interface SpeechRecognitionErrorEvent {
+  error: string;
+  message?: string;
+}
+
+interface SpeechRecognitionInstance {
+  start: () => void;
+  stop: () => void;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: SpeechRecognitionErrorEvent) => void) | null;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+}
+
+interface SpeechRecognitionConstructor {
+  new (): SpeechRecognitionInstance;
+}
+
+interface CustomWindow extends Window {
+  webkitSpeechRecognition?: SpeechRecognitionConstructor;
+  SpeechRecognition?: SpeechRecognitionConstructor;
+}
+
 function Task() {
   const [listening, setListening] = useState(false);
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const recognitionRef = useRef<any>(null);
-  const recentPhrasesRef = useRef<string[]>([]); // To store recent final phrases
+  const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+  const recentPhrasesRef = useRef<string[]>([]); // Store last 5 phrases
 
   useEffect(() => {
     const SpeechRecognition =
-      (window as any).webkitSpeechRecognition ||
-      (window as any).SpeechRecognition;
+      (window as CustomWindow).webkitSpeechRecognition ||
+      (window as CustomWindow).SpeechRecognition;
 
     if (!SpeechRecognition) {
       setError("Speech Recognition not supported in this browser.");
@@ -32,12 +79,12 @@ function Task() {
       setListening(false);
     };
 
-    recognition.onerror = (event: any) => {
+    recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       setError(`Speech recognition error: ${event.error}`);
       setListening(false);
     };
 
-    recognition.onresult = (event: any) => {
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
       let finalTranscript = "";
       let interimTranscript = "";
 
@@ -52,19 +99,18 @@ function Task() {
         }
       }
 
-      // Handle final results
       if (finalTranscript) {
         const cleaned = cleanText(finalTranscript);
 
-        // If it's not similar to recent final ones, keep it
         const isDuplicate = recentPhrasesRef.current.some((phrase) =>
           arePhrasesSimilar(phrase, cleaned)
         );
 
         if (!isDuplicate) {
           recentPhrasesRef.current.push(cleaned);
-          if (recentPhrasesRef.current.length > 5)
-            recentPhrasesRef.current.shift(); // Keep last 5 only
+          if (recentPhrasesRef.current.length > 5) {
+            recentPhrasesRef.current.shift();
+          }
           setText((prev) => (prev + " " + cleaned).trim());
         }
       }
@@ -120,7 +166,7 @@ function Task() {
 }
 
 // 🧼 Clean and normalize transcript
-function cleanText(text: string) {
+function cleanText(text: string): string {
   return text
     .toLowerCase()
     .replace(/[^a-z0-9\s]/gi, "")
@@ -128,13 +174,13 @@ function cleanText(text: string) {
 }
 
 // 🤖 Smart comparison
-function arePhrasesSimilar(a: string, b: string) {
+function arePhrasesSimilar(a: string, b: string): boolean {
   const tokensA = new Set(a.split(/\s+/));
   const tokensB = new Set(b.split(/\s+/));
   const common = [...tokensA].filter((word) => tokensB.has(word));
 
   const ratio = common.length / Math.max(tokensA.size, tokensB.size);
-  return ratio > 0.8; // Consider similar if >80% words match
+  return ratio > 0.8;
 }
 
 export default Task;
