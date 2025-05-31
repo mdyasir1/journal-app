@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-import { SpeechRecognitionErrorEvent, SpeechRecognitionEvent, SpeechRecognitionInstance, Window } from "../types";
+import {
+  SpeechRecognitionErrorEvent,
+  SpeechRecognitionEvent,
+  SpeechRecognitionInstance,
+  Window,
+} from "../types";
 
-function AudioToTextMobile(){
-    const [listening, setListening] = useState(false);
+function AudioToTextMobile() {
+  const [listening, setListening] = useState(false);
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
@@ -83,6 +88,16 @@ function AudioToTextMobile(){
   return (
     <div className="flex flex-col items-center gap-3 justify-center">
       <h1 className="text-xl font-bold">Audio To Text for Mobile</h1>
+      <p className="w-[300px] h-[400px] overflow-auto bg-[#d9dbf4aa] rounded-3xl p-3 text-base font-bold text-black">
+        {text}
+      </p>
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {text && (
+        <button className="border-[#d9dbf4aa] mb" onClick={resetHandler}>
+          Reset
+        </button>
+      )}
       <button
         id="buttonImg"
         onClick={handler}
@@ -91,13 +106,6 @@ function AudioToTextMobile(){
         <img src="mic.svg" alt="Mic" id="micImg" className="" />
       </button>
       <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
-      <p className="w-[300px] h-[400px] overflow-auto bg-[#d9dbf4aa] rounded-3xl p-3 text-base font-bold text-black">
-        {text}
-      </p>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <button className="border-[#d9dbf4aa]" onClick={resetHandler}>
-        Reset
-      </button>
     </div>
   );
 }
