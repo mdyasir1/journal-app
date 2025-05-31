@@ -24,7 +24,7 @@ interface SpeechRecognitionEvent {
 
 interface SpeechRecognitionErrorEvent {
   error: string;
-  message?: string;
+  message: string;
 }
 
 interface SpeechRecognitionInstance {
@@ -43,7 +43,7 @@ interface SpeechRecognitionConstructor {
   new (): SpeechRecognitionInstance;
 }
 
-interface CustomWindow extends Window {
+interface Window {
   webkitSpeechRecognition?: SpeechRecognitionConstructor;
   SpeechRecognition?: SpeechRecognitionConstructor;
 }
@@ -53,19 +53,18 @@ function Task() {
   const [text, setText] = useState("");
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
-  const recentPhrasesRef = useRef<string[]>([]); // Store last 5 phrases
 
   useEffect(() => {
     const SpeechRecognition =
-      (window as CustomWindow).webkitSpeechRecognition ||
-      (window as CustomWindow).SpeechRecognition;
+      (window as Window).webkitSpeechRecognition ||
+      (window as Window).SpeechRecognition;
 
     if (!SpeechRecognition) {
       setError("Speech Recognition not supported in this browser.");
       return;
     }
 
-    const recognition = new SpeechRecognition();
+    const recognition = new SpeechRecognition() as SpeechRecognitionInstance;
     recognition.continuous = true;
     recognition.interimResults = true;
     recognition.lang = "en-US";
@@ -79,41 +78,24 @@ function Task() {
       setListening(false);
     };
 
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let interimTranscript = "";
+      let finalTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        const transcript = result[0].transcript;
+        if (result.isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interimTranscript += transcript;
+        }
+      }
+      setText(finalTranscript || interimTranscript);
+    };
+
     recognition.onerror = (event: SpeechRecognitionErrorEvent) => {
       setError(`Speech recognition error: ${event.error}`);
       setListening(false);
-    };
-
-    recognition.onresult = (event: SpeechRecognitionEvent) => {
-      let finalTranscript = "";
-      let interimTranscript = "";
-
-      for (let i = event.resultIndex; i < event.results.length; ++i) {
-        const result = event.results[i];
-        const transcript = result[0].transcript.trim();
-
-        if (result.isFinal) {
-          finalTranscript += transcript + " ";
-        } else {
-          interimTranscript += transcript + " ";
-        }
-      }
-
-      if (finalTranscript) {
-        const cleaned = cleanText(finalTranscript);
-
-        const isDuplicate = recentPhrasesRef.current.some((phrase) =>
-          arePhrasesSimilar(phrase, cleaned)
-        );
-
-        if (!isDuplicate) {
-          recentPhrasesRef.current.push(cleaned);
-          if (recentPhrasesRef.current.length > 5) {
-            recentPhrasesRef.current.shift();
-          }
-          setText((prev) => (prev + " " + cleaned).trim());
-        }
-      }
     };
 
     recognitionRef.current = recognition;
@@ -125,8 +107,9 @@ function Task() {
 
   const handler = () => {
     const recognition = recognitionRef.current;
+
     if (!recognition) {
-      setError("Speech recognition not available.");
+      setError("Speech recognition is not supported in this browser");
       return;
     }
 
@@ -142,7 +125,6 @@ function Task() {
 
   const resetHandler = () => {
     setText("");
-    recentPhrasesRef.current = [];
   };
 
   return (
@@ -152,35 +134,13 @@ function Task() {
         <img src="mic.svg" alt="Mic" id="micImg" />
       </button>
       <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
-      <div
-        style={{ background: "#aaa", padding: "1rem", borderRadius: "20px" }}
-      >
-        <p id="p-text">{text}</p>
-      </div>
+      <p id="p-text">{text}</p>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <button id="reset-btn" onClick={resetHandler}>
         Reset
       </button>
     </div>
   );
-}
-
-// 🧼 Clean and normalize transcript
-function cleanText(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/gi, "")
-    .trim();
-}
-
-// 🤖 Smart comparison
-function arePhrasesSimilar(a: string, b: string): boolean {
-  const tokensA = new Set(a.split(/\s+/));
-  const tokensB = new Set(b.split(/\s+/));
-  const common = [...tokensA].filter((word) => tokensB.has(word));
-
-  const ratio = common.length / Math.max(tokensA.size, tokensB.size);
-  return ratio > 0.8;
 }
 
 export default Task;
