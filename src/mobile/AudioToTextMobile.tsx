@@ -93,18 +93,20 @@ function AudioToTextMobile() {
       </p>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      {text && (
-        <button className="border-[#d9dbf4aa] mb" onClick={resetHandler}>
-          Reset
+      <div className="mt-10 flex flex-col items-center gap-3 justify-center">
+        {text && (
+          <button className="border-[#d9dbf4aa] mb" onClick={resetHandler}>
+            Reset
+          </button>
+        )}
+        <button
+          id="buttonImg"
+          onClick={handler}
+          className="bg-[#d9dbf4aa] rounded-full w-16 h-16"
+        >
+          <img src="mic.svg" alt="Mic" id="micImg" className="" />
         </button>
-      )}
-      <button
-        id="buttonImg"
-        onClick={handler}
-        className="bg-[#d9dbf4aa] rounded-full w-16 h-16"
-      >
-        <img src="mic.svg" alt="Mic" id="micImg" className="" />
-      </button>
+      </div>
       <p>{listening ? "Listening...." : "Tap on Mic to Speak.."}</p>
     </div>
   );

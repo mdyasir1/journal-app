@@ -27,9 +27,11 @@ function AudioToText() {
       <p className="w-[800px] h-[200px] bg-[#d9dbf4aa] rounded-3xl p-3 text-base font-bold text-black">
         {transcript}
       </p>
-      <button className="border-[#d9dbf4aa]" onClick={resetTranscript}>
-        Reset
-      </button>
+      {transcript && (
+        <button className="border-[#d9dbf4aa] mb" onClick={resetTranscript}>
+          Reset
+        </button>
+      )}
     </div>
   );
 }
