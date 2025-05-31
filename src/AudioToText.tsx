@@ -17,7 +17,7 @@ function AudioToText() {
     <div className="flex flex-col items-center gap-3 justify-center">
       <h1 className="text-3xl font-bold">Audio To Text for Desktop</h1>
       <div
-        className="bg-[#d9dbf4aa] rounded-full w-16 h-16 flex justify-center items-center"
+        className="bg-[#d9dbf4aa] rounded-full w-16 h-16 flex justify-center items-center cursor-pointer"
         onClick={handler}
       >
         <img src="mic.svg" alt="mic" className="w-18 h-8" />

@@ -9,8 +9,16 @@ import {
 function AudioToTextMobile() {
   const [listening, setListening] = useState(false);
   const [text, setText] = useState("");
+  const [chunks, setChunks] = useState<string[]>([]); // Add this line
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
+
+  useEffect(() => {
+    if (!listening && text) {
+      setChunks((prevChunks) => [...prevChunks, text]);
+      setText("");
+    }
+  }, [listening, text]);
 
   useEffect(() => {
     const SpeechRecognition =
@@ -82,19 +90,21 @@ function AudioToTextMobile() {
   };
 
   const resetHandler = () => {
-    setText("");
+    setChunks([""]);
   };
 
   return (
     <div className="flex flex-col items-center gap-3 justify-center">
-      <h1 className="text-xl font-bold">Audio To Text for Mobile</h1>
+      {/* <pre>{JSON.stringify({ listening, text, chunks }, null, 2)}</pre> */}
+      <h1 className="text-xl font-bold">Audio To Text</h1>
       <p className="w-[300px] h-[400px] overflow-auto bg-[#d9dbf4aa] rounded-3xl p-3 text-base font-bold text-black">
-        {text}
+        {chunks?.join(" ")}
+        {listening && text}
       </p>
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <div className="mt-10 flex flex-col items-center gap-3 justify-center">
-        {text && (
+        {chunks && (
           <button className="border-[#d9dbf4aa] mb" onClick={resetHandler}>
             Reset
           </button>
