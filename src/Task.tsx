@@ -79,9 +79,12 @@ function Task() {
       setListening(false);
     };
 
+    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let interimTranscript = "";
       let finalTranscript = "";
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i];
         const transcript = result[0].transcript.trim();
@@ -94,14 +97,12 @@ function Task() {
 
       setText((prev) => {
         if (finalTranscript) {
-          // Only add finalTranscript if it's different from last one
           if (finalTranscript !== lastFinalTranscriptRef.current) {
             lastFinalTranscriptRef.current = finalTranscript;
-            return finalTranscript;
+            return isMobile ? finalTranscript : prev + finalTranscript;
           }
           return prev;
         }
-        // Show interim transcript temporarily without saving duplicates
         return interimTranscript ? prev + interimTranscript : prev;
       });
     };
